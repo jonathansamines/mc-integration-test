@@ -24,7 +24,10 @@ const options = {
   client: {
     id: MAILCHIMP_CLIENT_ID,
     secret: MAILCHIMP_CLIENT_SECRET,
-  }
+  },
+  options: {
+    authorizationMethod: 'body',
+  },
 };
 
 const client = new AuthorizationCode(options);
@@ -87,11 +90,11 @@ app.get("/oauth/mailchimp/callback", async (req, res) => {
   // ### [FETCH REQUEST ENDS]
 
   // ### [SIMPLE-OAUTH2 "GET TOKEN" STARTS]
-  const access_token = client.getToken({
+  const access_token = await client.getToken({
     redirect_uri: OAUTH_CALLBACK,
     code,
   });
-  console.log('simple-oauth2 access_token =>', access_token);
+  console.log('simple-oauth2 access_token =>', access_token.token.access_token);
   // ### [SIMPLE-OAUTH2 "GET TOKEN" ENDS]
 
   // Now we're using the access token to get information about the user.
@@ -102,7 +105,7 @@ app.get("/oauth/mailchimp/callback", async (req, res) => {
     "https://login.mailchimp.com/oauth2/metadata",
     {
       headers: {
-        Authorization: `OAuth ${access_token}`
+        Authorization: `OAuth ${access_token.token.access_token}`
       }
     }
   );
